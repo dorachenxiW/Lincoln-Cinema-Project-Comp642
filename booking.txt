@@ -1,6 +1,3 @@
 Dora,1,1000:1001,40,Credit Card
 Dora,3,1003,20,Cash
-Dora,4,1005,20,Debit Card\n
-
-Dora,2,1009,20.0,Debit Card
-bob,7,1017:1018:1019,60.0,Debit Card
+Dora,4,1005,20,Debit Card
