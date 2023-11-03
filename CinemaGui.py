@@ -1339,6 +1339,7 @@ class FifthPage(tk.Frame):
             
             # Calculate the order total based on selected seats
             order_total = sum(seat.seatPrice for seat in selected_seats)
+            order_total_str = str(order_total)
             # Create a Booking object with the retrieved information
             booking = self.cinema.make_booking(selected_customer, selected_screening, selected_seats, order_total, selected_payment_method)
             print("booking made")
@@ -1373,10 +1374,9 @@ class FifthPage(tk.Frame):
                     with open("booking.txt", "a") as file:
                       # Join the selected seat IDs with colons if there are multiple seats
                         seats_str = ":".join(map(str, selected_seat_ID))
-
                         file.write(
                             f"{selected_customer_name},{screening_id_str},{seats_str},"
-                            f"{str(order_total)},{selected_payment_method}\n"
+                            f"{order_total_str},{selected_payment_method}\n"
                         )
 
                     messagebox.showinfo("Success", "A new booking has been added.")
