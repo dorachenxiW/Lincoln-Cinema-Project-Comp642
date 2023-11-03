@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
+from tkcalendar import Calendar
 from PIL import Image, ImageTk
 from CinemaController import Cinema
 from datetime import date, datetime
@@ -801,7 +802,6 @@ class FourthPage(tk.Frame):
         self.selected_customer = None
 
         # Create a label for "Welcome Front Desk Staff" at the top
-       
         welcome_label = tk.Label(self, text="Welcome Front Desk Staff", font=("Arial Bold", 22))
         welcome_label.grid(row=0, column=0, columnspan=3, pady=10)
 
@@ -1079,16 +1079,114 @@ class FifthPage(tk.Frame):
         # Create a button to cancel selected booking
         cancel_booking_button = tk.Button(self, text="Cancel Selected Booking", font=("Arial", 15), command=self.cancel_selected_booking)
         cancel_booking_button.grid(row=6, column=0, columnspan=2, padx=(10, 20), pady=10)
+        
+        # Create buttons to perform administrative actions
+        #button_padding = (10, 20)
+        add_movie_button = tk.Button(self, text="Add a Movie", font=("Arial", 15), command=self.add_movie)
+        add_movie_button.grid(row=7, column=0, columnspan=1, padx=0, pady=10)
 
+        cancel_movie_button = tk.Button(self, text="Cancel a Movie", font=("Arial", 15), command=self.cancel_movie)
+        cancel_movie_button.grid(row=7, column=1, columnspan=1, padx=0, pady=10)
+
+        add_screening_button = tk.Button(self, text="Add a Screening", font=("Arial", 15), command=self.add_screening)
+        add_screening_button.grid(row=8, column=0, columnspan=1, padx=0, pady=10)
+
+        cancel_screening_button = tk.Button(self, text="Cancel a Screening", font=("Arial", 15), command=self.cancel_screening)
+        cancel_screening_button.grid(row=8, column=1, columnspan=1, padx=0, pady=10)
+        
+        
         # Create a button to log out at the very bottom
         log_out_button = tk.Button(self, text="Log Out", font=("Arial", 15), command=self.log_out)
-        log_out_button.grid(row=8, column=0, columnspan=2, padx=(10, 20), pady=10)
+        log_out_button.grid(row=9, column=0, columnspan=2, padx=(10, 20), pady=10)
 
         self.populate_customer_combobox()
         self.populate_screening_combobox()
         
         self.update_booking_list()  # Initial update
+    
+    def add_movie(self):
+        # Create a pop-up window for adding a movie
+        add_movie_window = tk.Toplevel(self)
+        add_movie_window.title("Add a Movie")
 
+        # Create input fields for movie details
+        title_label = tk.Label(add_movie_window, text="Title:")
+        title_label.grid(row=0, column=0, padx=10, pady=5)
+        title_entry = tk.Entry(add_movie_window)
+        title_entry.grid(row=0, column=1, padx=10, pady=5)
+
+        description_label = tk.Label(add_movie_window, text="Description:")
+        description_label.grid(row=1, column=0, padx=10, pady=5)
+        description_entry = tk.Entry(add_movie_window)
+        description_entry.grid(row=1, column=1, padx=10, pady=5)
+
+        duration_label = tk.Label(add_movie_window, text="Duration (Mins):")
+        duration_label.grid(row=2, column=0, padx=10, pady=5)
+        duration_entry = tk.Entry(add_movie_window)
+        duration_entry.grid(row=2, column=1, padx=10, pady=5)
+
+        language_label = tk.Label(add_movie_window, text="Language:")
+        language_label.grid(row=3, column=0, padx=10, pady=5)
+        language_entry = tk.Entry(add_movie_window)
+        language_entry.grid(row=3, column=1, padx=10, pady=5)
+
+        release_date_label = tk.Label(add_movie_window, text="Release Date:")
+        release_date_label.grid(row=4, column=0, padx=10, pady=5)
+        release_date_calendar = Calendar(add_movie_window, date_pattern="yyyy-mm-dd")
+        release_date_calendar.grid(row=4, column=1, padx=10, pady=5)
+
+        country_label = tk.Label(add_movie_window, text="Country:")
+        country_label.grid(row=5, column=0, padx=10, pady=5)
+        country_entry = tk.Entry(add_movie_window)
+        country_entry.grid(row=5, column=1, padx=10, pady=5)
+
+        genre_label = tk.Label(add_movie_window, text="Genre:")
+        genre_label.grid(row=6, column=0, padx=10, pady=5)
+        genre_entry = tk.Entry(add_movie_window)
+        genre_entry.grid(row=6, column=1, padx=10, pady=5)
+
+        # Create a function to save the movie details
+        def save_movie_details():
+            try:
+                durationMins = int(durationMins)  # Convert input to an integer
+            except ValueError:
+                messagebox.showinfo("Error", "DurationMins must be a number.")
+                return  # Exit the function if 'durationMins' is not a number
+            
+            title = title_entry.get()
+            description = description_entry.get()
+            durationMins = int(duration_entry.get())
+            language = language_entry.get()
+            releaseDate = release_date_calendar.get_date()
+            country = country_entry.get()
+            genre = genre_entry.get()
+
+            # Call a function in your Cinema class to add the movie
+            movie = self.cinema.add_movie(title,description,durationMins,language,releaseDate,country,genre)
+
+            # Write it in the movie_info.txt
+            try:
+                with open("movie_info.txt", "a") as file:
+                    file.write(
+                        f"{title},{description},{durationMins},{language},"
+                        f"{releaseDate},{country},{genre}\n"
+                    )
+                    messagebox.showinfo("success","A new movie has been added.")
+            except Exception as e:
+                print("Error writing movie details to file:", str(e))
+
+            # Close the pop-up window
+            add_movie_window.destroy()
+
+        # Create a button to save the movie details
+        save_button = tk.Button(add_movie_window, text="Save Movie", command=save_movie_details)
+        save_button.grid(row=7, column=0, columnspan=2, pady=10)
+    def cancel_movie(self):
+        pass
+    def add_screening(self):
+        pass
+    def cancel_screening(self):
+        pass
 
     def populate_screening_combobox(self):
         # Get a list of all screenings from the Cinema class
@@ -1174,6 +1272,62 @@ class FifthPage(tk.Frame):
         payment_method_label.pack()
         payment_method_combobox.pack()    
 
+    def open_seat_payment_window(self):
+        # Retrieve the selected screening and customer
+        selected_screening_text = self.screening_combobox.get()
+        selected_customer_name = self.customer_combobox.get()
+
+        if (
+            selected_screening_text == "Select a screening"
+            or selected_customer_name == "Select a customer"
+        ):
+            # Show an error message if a selection is not made
+            tk.messagebox.showerror("Error", "Please select a customer and a screening.")
+        else:
+            # Split the selected screening text to extract the screening ID
+            screening_id_str = selected_screening_text.split(" ")[1].strip(",")  # Remove the comma
+            selected_screening = self.cinema.find_screening_by_screening_number(int(screening_id_str))
+            # Find the corresponding customer object
+            selected_customer = self.cinema.find_customer_by_name(selected_customer_name)
+
+            if selected_screening and selected_customer:
+                
+                self.selected_screening = selected_screening
+                self.selected_customer = selected_customer
+                messagebox.showinfo("Success", "Customer and Screening Chosen")
+                # Populate the seat Combobox based on the selected screening
+                #self.populate_seat_combobox()
+            else:
+                tk.messagebox.showerror("Error", "Failed to find the selected customer or screening.")
+
+        # Create a pop-up window for booking with customer name input
+        booking_window = tk.Toplevel(self)
+        booking_window.title("Seat and Payment")    
+
+        # Create entry field for the number of seats
+        num_seats_label = tk.Label(booking_window, text="Available Seats:")
+        num_seats_label.pack()
+        available_seats = selected_screening.getAvailableSeats()
+        # Create IntVar for seat selection
+        selected_seats_vars = []
+        seat_checkboxes = []
+        for seat in available_seats:
+            selected_seat_var = tk.IntVar()
+            seat_checkbox = tk.Checkbutton(
+                booking_window,
+                text=f"Seat {seat.seatNumber}, Column {seat.seatColumn}, Price: ${seat.seatPrice}",
+                variable=selected_seat_var,
+            )
+            selected_seats_vars.append(selected_seat_var)
+            seat_checkboxes.append(seat_checkbox)
+            seat_checkbox.pack()
+        # Create a Combobox for payment method selection
+        payment_method_var = tk.StringVar()
+        payment_method_label = tk.Label(booking_window, text="Payment Method:")
+        payment_method_combobox = ttk.Combobox(booking_window, textvariable=payment_method_var, values=["Credit Card", "Debit Card","Cash"])
+        payment_method_label.pack()
+        payment_method_combobox.pack()    
+
         def confirm_booking():
             # Retrieve the selected payment method from the dropdown
             selected_payment_method = payment_method_var.get()
@@ -1187,6 +1341,7 @@ class FifthPage(tk.Frame):
             order_total = sum(seat.seatPrice for seat in selected_seats)
             # Create a Booking object with the retrieved information
             booking = self.cinema.make_booking(selected_customer, selected_screening, selected_seats, order_total, selected_payment_method)
+            print("booking made")
             # Add the booking to the bookings_listbox
             # Get movie tile 
             movie_title = self.cinema.find_movie_by_screening_number(int(screening_id_str))
@@ -1208,12 +1363,29 @@ class FifthPage(tk.Frame):
                 )
 
             self.bookings_listbox.insert(tk.END, booking_text)
-            
-            #print("booking created")
-            messagebox.showinfo("Success", "A booking has been made.")
+            # Write the new booking in the booking.txt
+            selected_seat_ID = []
+            for selected_seat in selected_seats:
+                seatID = selected_seat.seatID
+                selected_seat_ID.append(seatID)
+            if len(selected_seat_ID) >= 1:
+                try:
+                    with open("booking.txt", "a") as file:
+                      # Join the selected seat IDs with colons if there are multiple seats
+                        seats_str = ":".join(map(str, selected_seat_ID))
 
+                        file.write(
+                            f"{selected_customer_name},{screening_id_str},{seats_str},"
+                            f"{str(order_total)},{selected_payment_method}\n"
+                        )
+
+                    messagebox.showinfo("Success", "A new booking has been added.")
+                except Exception as e:
+                    messagebox.showerror("Error writing booking details to file:", str(e))
+                    
             # Close the pop-up window
             booking_window.destroy()
+
         confirm_button = tk.Button(booking_window, text="Confirm Booking", command=confirm_booking)
         confirm_button.pack()    
     
@@ -1334,6 +1506,6 @@ class Application(tk.Tk):
 
 if __name__ == "__main__":
     app = Application()
-    app.geometry("900x600")
+    app.geometry("900x620")
     app.title("Lincoln Cinemas")
     app.mainloop()

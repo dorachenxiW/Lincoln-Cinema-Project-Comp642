@@ -164,11 +164,12 @@ class Cinema:
         return None  # Return None if the movie is not found
 
     def add_movie(self, title: str, description: str, durationMins: int, language: str, releaseDate: datetime, country: str, genre: str):
-
         # Create a new Movie and add it to the list of movies
         movie = Movie(title, description, durationMins, language, releaseDate, country, genre)
         self.moviesList.append(movie)
-        #print(self.moviesList)
+        print(movie)
+        
+        #return movie
 
     def get_all_movies(self):
         return self.moviesList    
@@ -288,3 +289,6 @@ class Cinema:
         notification_content = f"Booking {booking.bookingNum} has been canceled."
         notification = Notification(notificationID, notification_content)  # Create a new Notification object
         self.send_notification(customer, notification)  # Send the notification to the customer
+
+# cinema = Cinema()
+# print(cinema.moviesList)

@@ -1,7 +1,7 @@
 # Lincoln-Cinema-Project-Comp642
 The last assignment of COMP642
-Login Details:
 
+Login Details:
 CUSTOMER
 username:dora
 password:123
