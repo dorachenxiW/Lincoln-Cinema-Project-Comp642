@@ -167,9 +167,8 @@ class Cinema:
         # Create a new Movie and add it to the list of movies
         movie = Movie(title, description, durationMins, language, releaseDate, country, genre)
         self.moviesList.append(movie)
-        print(movie)
-        
-        #return movie
+        #print(movie)
+        return movie
 
     def get_all_movies(self):
         return self.moviesList    

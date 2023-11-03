@@ -1339,10 +1339,11 @@ class FifthPage(tk.Frame):
             
             # Calculate the order total based on selected seats
             order_total = sum(seat.seatPrice for seat in selected_seats)
-            order_total_str = str(order_total)
+            order_total_str = format(order_total, '.0f')
+
             # Create a Booking object with the retrieved information
             booking = self.cinema.make_booking(selected_customer, selected_screening, selected_seats, order_total, selected_payment_method)
-            print("booking made")
+            #print("booking made")
             # Add the booking to the bookings_listbox
             # Get movie tile 
             movie_title = self.cinema.find_movie_by_screening_number(int(screening_id_str))
