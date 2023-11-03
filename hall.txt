@@ -1,0 +1,4 @@
+Hall 1,120,1:A:False:20;2:B:False:20;3:C:False:20;4:D:True:20;5:E:False:20
+Hall 2,90,1:A:False:20;2:B:False:20;3:C:True:20;4:D:False:20;5:E:False:20
+Hall 3,110,1:A:False:20;2:B:False:20;3:C:False:20;4:D:True:20;5:E:False:20
+Hall 4,80,1:A:False:20;2:B:True:20;3:C:False:20;4:D:False:20;5:E:False:20
