@@ -946,6 +946,7 @@ class FourthPage(tk.Frame):
             
             # Calculate the order total based on selected seats
             order_total = sum(seat.seatPrice for seat in selected_seats)
+            order_total_str = format(order_total, '.0f')
             # Create a Booking object with the retrieved information
             booking = self.cinema.make_booking(selected_customer, selected_screening, selected_seats, order_total, selected_payment_method)
             # Add the booking to the bookings_listbox
@@ -969,10 +970,24 @@ class FourthPage(tk.Frame):
                 )
 
             self.bookings_listbox.insert(tk.END, booking_text)
+            # Write the new booking in the booking.txt
+            selected_seat_ID = []
+            for selected_seat in selected_seats:
+                seatID = selected_seat.seatID
+                selected_seat_ID.append(seatID)
+            if len(selected_seat_ID) >= 1:
+                try:
+                    with open("booking.txt", "a") as file:
+                      # Join the selected seat IDs with colons if there are multiple seats
+                        seats_str = ":".join(map(str, selected_seat_ID))
+                        file.write(
+                            f"{selected_customer_name},{screening_id_str},{seats_str},"
+                            f"{order_total_str},{selected_payment_method}\n"
+                        )
+                    messagebox.showinfo("Success", "A new booking has been added.")
+                except Exception as e:
+                    messagebox.showerror("Error writing booking details to file:", str(e))
             
-            #print("booking created")
-            messagebox.showinfo("Success", "A booking has been made.")
-
             # Close the pop-up window
             booking_window.destroy()
         confirm_button = tk.Button(booking_window, text="Confirm Booking", command=confirm_booking)
@@ -1006,6 +1021,26 @@ class FourthPage(tk.Frame):
         if booking_to_cancel is not None:
             # Remove the booking from the Cinema class
             self.cinema.cancel_booking(booking_to_cancel)  # Implement this method in your Cinema class
+            # Read the content of "booking.txt" into a list of lines
+            with open("booking.txt", "r") as file:
+                lines = file.readlines()
+
+            # Find the index of the line to be deleted
+            line_index = None
+            for i, line in enumerate(lines):
+        
+                if str(booking_id) in line:
+                    line_index = i
+                    print(line_index)
+                    break
+
+            if line_index is not None:
+                # Remove the line from the list of lines
+                del lines[line_index]
+
+                # Write the updated list of lines back to "booking.txt"
+                with open("booking.txt", "w") as file:
+                    file.writelines(lines)
 
             # Remove the booking from the bookings_listbox
             self.bookings_listbox.delete(selected_index)
@@ -1521,6 +1556,27 @@ class FifthPage(tk.Frame):
         if booking_to_cancel is not None:
             # Remove the booking from the Cinema class
             self.cinema.cancel_booking(booking_to_cancel)  # Implement this method in your Cinema class
+
+            # Read the content of "booking.txt" into a list of lines
+            with open("booking.txt", "r") as file:
+                lines = file.readlines()
+
+            # Find the index of the line to be deleted
+            line_index = None
+            for i, line in enumerate(lines):
+        
+                if str(booking_id) in line:
+                    line_index = i
+                    print(line_index)
+                    break
+
+            if line_index is not None:
+                # Remove the line from the list of lines
+                del lines[line_index]
+
+                # Write the updated list of lines back to "booking.txt"
+                with open("booking.txt", "w") as file:
+                    file.writelines(lines)
 
             # Remove the booking from the bookings_listbox
             self.bookings_listbox.delete(selected_index)
