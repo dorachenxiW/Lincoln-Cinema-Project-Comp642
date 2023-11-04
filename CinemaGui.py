@@ -299,6 +299,10 @@ class FirstPage(tk.Frame):
                         ]
                         for line in schedule_info:
                             self.schedules_listbox.insert(tk.END, line)
+                else:
+                    # If no screening, for example, a newly added movie.
+                    schedule_info = "No available screening for this movie."
+                    self.schedules_listbox.insert(tk.END, schedule_info)            
             else:
                 # If the movie is not found, clear the details_listbox
                 self.details_listbox.delete(0, tk.END)
@@ -633,6 +637,10 @@ class ThirdPage(tk.Frame):
 
                         for line in schedule_info:
                             self.schedules_listbox.insert(tk.END, line)
+                else:
+                    # If no screening, for example, a newly added movie.
+                    schedule_info = "No available screening for this movie."
+                    self.schedules_listbox.insert(tk.END, schedule_info)   
             else:
                 # If the movie is not found, clear the details_listbox
                 self.details_listbox.delete(0, tk.END)
