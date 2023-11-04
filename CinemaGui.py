@@ -548,7 +548,6 @@ class ThirdPage(tk.Frame):
         # Read movie information file and populate the movie listbox with titles
         self.populate_movie_list()
        
-    
     def update_booking_list(self):
         # Clear the previous list box entries
         self.bookings_listbox.delete(0, tk.END)
@@ -584,7 +583,6 @@ class ThirdPage(tk.Frame):
                 # Insert the accumulated booking details into the bookings_listbox
                 for text in booking_texts:
                     self.bookings_listbox.insert(tk.END, text)
-
     
     def populate_movie_list(self):
         # Get a list of movie objects from the Cinema class
@@ -595,7 +593,6 @@ class ThirdPage(tk.Frame):
         for movie in movies:
             self.movie_listbox.insert(tk.END, movie.title)
     
-
     def view_movie(self):
         #print("View Movie button clicked")  # Add this line
         # Get the selected item(s) from the movie_listbox
@@ -850,7 +847,6 @@ class FourthPage(tk.Frame):
         self.populate_screening_combobox()
         self.update_booking_list()  # Initial update
 
-
     def populate_screening_combobox(self):
         # Get a list of all screenings from the Cinema class
         screenings = self.cinema.screeningsList
@@ -1049,7 +1045,6 @@ class FourthPage(tk.Frame):
         else:
             messagebox.showinfo("Error", "Selected booking not found.")
     
-
     def log_out(self):
         self.app.show_frame(SecondPage)
 
@@ -1196,10 +1191,11 @@ class FifthPage(tk.Frame):
             description = description_entry.get()
             durationMins = int(duration_entry.get()) 
             language = language_entry.get()
-            releaseDate = release_date_calendar.get_date()
+            releaseDate_str = release_date_calendar.get_date()
+            releaseDate = datetime.strptime(releaseDate_str, "%Y-%m-%d").date()
             country = country_entry.get()
             genre = genre_entry.get()
-
+            
             try:
                 durationMins = int(durationMins)  # Convert input to an integer
             except ValueError:
@@ -1251,28 +1247,11 @@ class FifthPage(tk.Frame):
             # Get the selected movie's title
             selected_movie_index = selected_movie_index[0]  # Get the first selected index
             selected_movie_title = movie_listbox.get(selected_movie_index)
-            print(selected_movie_title)
 
             # Implement the cancellation logic here, e.g., remove the movie from your data
             movie = self.cinema.find_movie_by_title(selected_movie_title)
             self.cinema.cancel_movie(movie)
 
-            # Delete the line from the movie_info.txt file
-            try:
-                with open("movie_info.txt", "r") as file:
-                    lines = file.readlines()
-                with open("movie_info.txt", "w") as file:
-                    for line in lines:
-                        if selected_movie_title not in line:
-                            file.write(line)
-
-                messagebox.showinfo("Success", f"{selected_movie_title} has been canceled.")
-            except Exception as e:
-                messagebox.showerror("Error deleting the movie:", str(e))
-            
-            print("writing deleting screening")
-            print(movie)
-            print(movie.getScreenings())
             if movie.getScreenings():
                 print(movie.getScreenings())
                 # Delete the lines in the screening.txt file for this movie
@@ -1286,15 +1265,27 @@ class FifthPage(tk.Frame):
                 except Exception as e:
                     messagebox.showerror("Error deleting screenings:", str(e))
 
+            # Delete the line from the movie_info.txt file
+            try:
+                with open("movie_info.txt", "r") as file:
+                    lines = file.readlines()
+                with open("movie_info.txt", "w") as file:
+                    for line in lines:
+                        if selected_movie_title not in line:
+                            file.write(line)
+
+                messagebox.showinfo("Success", f"The movie: {selected_movie_title} and its screenigns have been canceled.")
+            except Exception as e:
+                messagebox.showerror("Error deleting the movie:", str(e))
 
             # Update the listbox to reflect the changes
+            #self.populate_screening_combobox()
             movie_listbox.delete(selected_movie_index)
             cancel_movie_window.destroy()
 
         cancel_button = tk.Button(cancel_movie_window, text="Cancel Movie", command=confirm_cancellation)
         cancel_button.pack()
-
-         
+ 
     def add_screening(self):
         # Create a pop-up window for adding a screening
         add_screening_window = tk.Toplevel(self)
@@ -1325,7 +1316,7 @@ class FifthPage(tk.Frame):
 
         def create_screening():
             # Retrieve the selected screening details
-            screening_date = screening_date_calendar.get_date()
+            screening_date_str = screening_date_calendar.get_date()
             start_time_str = start_time_entry.get()
             end_time_str = end_time_entry.get()
             selected_hall_name = hall_combobox.get()
@@ -1334,6 +1325,7 @@ class FifthPage(tk.Frame):
             time_format = "%H:%M"  # HH:MM format
 
             try:
+                screening_date = datetime.strptime(screening_date_str, "%Y-%m-%d").date()
                 start_time = datetime.strptime(start_time_str, time_format)
                 end_time = datetime.strptime(end_time_str, time_format)
             except ValueError:
@@ -1371,17 +1363,15 @@ class FifthPage(tk.Frame):
                     movie = self.cinema.find_movie_by_title(selected_movie_name)
                     # add this movie to screening
                     self.cinema.add_movie_to_screening(screening,movie)
-                    print(movie)
-                    print(screening)
-                    print(movie.getScreenings())
                     try:
                         with open("screening.txt", "a") as file:
                             file.write(
                                 f"\n"
-                                f"{selected_movie_name},{screening_date},{start_time_str},{end_time_str},{selected_hall_name}"
+                                f"{selected_movie_name},{screening_date_str},{start_time_str},{end_time_str},{selected_hall_name}"
                             )
                         messagebox.showinfo("Sucess","A new screening has been added.")    
                         messagebox.showinfo("Success", "A movie has been associated with the a screening.")
+                        self.populate_screening_combobox()
                     except Exception as e:
                         messagebox.showerror("Error writing movie details to file:", str(e))
 
@@ -1393,7 +1383,6 @@ class FifthPage(tk.Frame):
 
         create_button = tk.Button(add_screening_window, text="Create Screening", command=create_screening)
         create_button.grid(row=4, column=0, columnspan=2, pady=10)
-
 
     def cancel_screening(self):
         pass
@@ -1424,63 +1413,7 @@ class FifthPage(tk.Frame):
         customers = self.cinema.get_all_customers()
 
         # Populate the customer Combobox with customer names
-        self.customer_combobox["values"] = [customer.name for customer in customers]
-    
-    def open_seat_payment_window(self):
-        # Retrieve the selected screening and customer
-        selected_screening_text = self.screening_combobox.get()
-        selected_customer_name = self.customer_combobox.get()
-
-        if (
-            selected_screening_text == "Select a screening"
-            or selected_customer_name == "Select a customer"
-        ):
-            # Show an error message if a selection is not made
-            tk.messagebox.showerror("Error", "Please select a customer and a screening.")
-        else:
-            # Split the selected screening text to extract the screening ID
-            screening_id_str = selected_screening_text.split(" ")[1].strip(",")  # Remove the comma
-            selected_screening = self.cinema.find_screening_by_screening_number(int(screening_id_str))
-            # Find the corresponding customer object
-            selected_customer = self.cinema.find_customer_by_name(selected_customer_name)
-
-            if selected_screening and selected_customer:
-                
-                self.selected_screening = selected_screening
-                self.selected_customer = selected_customer
-                messagebox.showinfo("Success", "Customer and Screening Chosen")
-                # Populate the seat Combobox based on the selected screening
-                #self.populate_seat_combobox()
-            else:
-                tk.messagebox.showerror("Error", "Failed to find the selected customer or screening.")
-
-        # Create a pop-up window for booking with customer name input
-        booking_window = tk.Toplevel(self)
-        booking_window.title("Seat and Payment")    
-
-        # Create entry field for the number of seats
-        num_seats_label = tk.Label(booking_window, text="Available Seats:")
-        num_seats_label.pack()
-        available_seats = selected_screening.getAvailableSeats()
-        # Create IntVar for seat selection
-        selected_seats_vars = []
-        seat_checkboxes = []
-        for seat in available_seats:
-            selected_seat_var = tk.IntVar()
-            seat_checkbox = tk.Checkbutton(
-                booking_window,
-                text=f"Seat {seat.seatNumber}, Column {seat.seatColumn}, Price: ${seat.seatPrice}",
-                variable=selected_seat_var,
-            )
-            selected_seats_vars.append(selected_seat_var)
-            seat_checkboxes.append(seat_checkbox)
-            seat_checkbox.pack()
-        # Create a Combobox for payment method selection
-        payment_method_var = tk.StringVar()
-        payment_method_label = tk.Label(booking_window, text="Payment Method:")
-        payment_method_combobox = ttk.Combobox(booking_window, textvariable=payment_method_var, values=["Credit Card", "Debit Card","Cash"])
-        payment_method_label.pack()
-        payment_method_combobox.pack()    
+        self.customer_combobox["values"] = [customer.name for customer in customers]  
 
     def open_seat_payment_window(self):
         # Retrieve the selected screening and customer
@@ -1657,7 +1590,6 @@ class FifthPage(tk.Frame):
         else:
             messagebox.showinfo("Error", "Selected booking not found.")
     
-    
     def log_out(self):
         # Notify the FourthPage to update its booking list
         self.app.frames[FourthPage].update_booking_list()
@@ -1696,7 +1628,6 @@ class FifthPage(tk.Frame):
 
             # Insert the updated booking details into the bookings_listbox
             self.bookings_listbox.insert(tk.END, booking_text)
-
 
 class Application(tk.Tk):
     def __init__(self, *args, **kwargs):
