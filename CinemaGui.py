@@ -1433,6 +1433,7 @@ class FifthPage(tk.Frame):
         self.app.frames[FourthPage].update_booking_list()
         # Notify the First and Third Page to update movie list
         self.app.frames[FirstPage].populate_movie_list()
+        self.app.frames[ThirdPage].populate_movie_list()
         # Switch back to the login page when the Front Desk Staff logs out
         self.app.show_frame(SecondPage)
 

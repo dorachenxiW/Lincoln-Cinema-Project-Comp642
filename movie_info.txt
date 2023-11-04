@@ -2,4 +2,5 @@ Five Nights at Freddy,"The film follows a troubled security guard as he begins w
 The Marvels,Carol Danvers aka Captain Marvel has reclaimed her identity from the tyrannical Kree and taken revenge on the Supreme Intelligence.,105,English,2023-11-09,United States, Adventure
 PAW Patrol,"A magical meteor crash lands in Adventure City. It gives the PAW Patrol pups superpowers; transforming them into The Mighty Pups.",140,French,2023-09-30,France,Cartoon\n
 Dumb Money,Dumb Money tells the story of fortunes made and lost overnight in the David-vs.-Goliath GameStop short squeeze that may have changed Wall Street forever.,104,English,2023-10-26,United States,Comedy
-Taylor Swift the Eras Tour,The cultural phenomenon continues on the big screen.Immerse yourself in this once-in-a-lifetime concert film experience with a breathtaking, cinematic view.,168,English,2023-10-13,United States,Documentary
+Taylor Swift the Eras Tour,The cultural phenomenon continues on the big screen.Immerse yourself in this once-in-a-lifetime concert film experience with a breathtaking cinematic view.,168,English,2023-10-13,United States,Documentary
+The Creator,This is an epic sci-fi action thriller set amidst a future war between the human race and the forces of AI.,133,English,2023-09-28,United States,Fantasy
