@@ -1461,7 +1461,6 @@ class FifthPage(tk.Frame):
             screening_to_movie_copy = self.cinema.screening_to_movie.copy()
             
             # Find the movie title associated with the screening
-            print(screening_to_movie_copy)
             for screeningID, movie_title in screening_to_movie_copy.items():
                 # Check if the selected screening ID exists in the dictionary
                if selected_screening_id == screeningID:
@@ -1470,7 +1469,6 @@ class FifthPage(tk.Frame):
                     print(self.cinema.screening_to_movie)
             # cancel screening
             self.cinema.remove_screening(screening) 
-            print("screening removed")
 
             # Read the contents of the screening.txt file
             with open("screening.txt", "r") as file:
@@ -1502,9 +1500,11 @@ class FifthPage(tk.Frame):
             # Write the updated content (excluding the canceled screening) back to the screening.txt file
             with open("screening.txt", "w") as file:
                 file.writelines(updated_lines)
-                
+
             messagebox.showinfo("Success", "Cancalling a screening successful.")
             messagebox.showinfo("Success", "The movie scheduled in this screening is cancelled.")
+            
+            self.populate_screening_combobox()
                 
             # Update the listbox to reflect the changes
             screening_listbox.delete(selected_screening_index)
@@ -1744,6 +1744,7 @@ class FifthPage(tk.Frame):
     def log_out(self):
         # Notify the FourthPage to update its booking list
         self.app.frames[FourthPage].update_booking_list()
+        self.app.frames[FourthPage].populate_screening_combobox()
         # Notify the First and Third Page to update movie list
         self.app.frames[FirstPage].populate_movie_list()
         self.app.frames[ThirdPage].populate_movie_list()
