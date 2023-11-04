@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
+from tkinter import simpledialog
 from tkcalendar import Calendar
 from PIL import Image, ImageTk
 from CinemaController import Cinema
@@ -1182,7 +1183,7 @@ class FifthPage(tk.Frame):
                     )
                     messagebox.showinfo("success","A new movie has been added.")
             except Exception as e:
-                print("Error writing movie details to file:", str(e))
+                messagebox.showerror("Error writing movie details to file:", str(e))
 
             # Close the pop-up window
             add_movie_window.destroy()
@@ -1192,8 +1193,101 @@ class FifthPage(tk.Frame):
         save_button.grid(row=7, column=0, columnspan=2, pady=10)
     def cancel_movie(self):
         pass
+         
     def add_screening(self):
-        pass
+        # Create a pop-up window for adding a screening
+        add_screening_window = tk.Toplevel(self)
+        add_screening_window.title("Add a Screening")
+
+         # Create input fields for screening details
+        screening_date_label = tk.Label(add_screening_window, text="Screening Date:")
+        screening_date_label.grid(row=0, column=0, padx=10, pady=5)
+        screening_date_calendar = Calendar(add_screening_window, date_pattern="yyyy-mm-dd")
+        screening_date_calendar.grid(row=0, column=1, padx=10, pady=5)
+
+        start_time_label = tk.Label(add_screening_window, text="Start Time (HH:MM):")
+        start_time_label.grid(row=1, column=0, padx=10, pady=5)
+        start_time_entry = tk.Entry(add_screening_window)
+        start_time_entry.grid(row=1, column=1, padx=10, pady=5)
+
+        end_time_label = tk.Label(add_screening_window, text="End Time (HH:MM):")
+        end_time_label.grid(row=2, column=0, padx=10, pady=5)
+        end_time_entry = tk.Entry(add_screening_window)
+        end_time_entry.grid(row=2, column=1, padx=10, pady=5)
+
+        hall_label = tk.Label(add_screening_window, text="Hall:")
+        hall_label.grid(row=3, column=0, padx=10, pady=5)
+
+        # Create a combo box for selecting a hall and populate it with available halls
+        hall_combobox = ttk.Combobox(add_screening_window, values=["Hall 1", "Hall 2", "Hall 3", "Hall 4"])
+        hall_combobox.grid(row=3, column=1, padx=10, pady=5)
+
+        def create_screening():
+            # Retrieve the selected screening details
+            screening_date = screening_date_calendar.get_date()
+            start_time_str = start_time_entry.get()
+            end_time_str = end_time_entry.get()
+            selected_hall_name = hall_combobox.get()
+
+            # Define the time format expected from the user (24-hour format)
+            time_format = "%H:%M"  # HH:MM format
+
+            try:
+                start_time = datetime.strptime(start_time_str, time_format)
+                end_time = datetime.strptime(end_time_str, time_format)
+            except ValueError:
+                messagebox.showinfo("Error", "Invalid time format. Please use HH:MM 24-hour format.")
+
+            # Find the hall object from the selected hall name
+            hall = self.cinema.find_hall_by_name(selected_hall_name)
+
+            # Create the screening object with the selected details, hall, and movie (if applicable)
+            screening = self.cinema.add_screening(screening_date, start_time, end_time, hall)
+
+            # You can handle movie association here if needed
+            # Retrieve the list of available movies from your cinema
+            available_movies = self.cinema.get_all_movies()
+
+            # Create a pop-up window for movie selection
+            movie_selection_window = tk.Toplevel(self)
+            movie_selection_window.title("Select a Movie for Screening")
+
+            # Create a Combobox for selecting a movie
+            selected_movie_var = tk.StringVar()
+            selected_movie_var.set("Select a movie")
+            movie_combobox = ttk.Combobox(movie_selection_window, textvariable=selected_movie_var)
+            movie_combobox['values'] = ["None"] + [movie.title for movie in available_movies]
+            movie_combobox.grid(row=0, column=0, padx=10, pady=5)
+
+            def confirm_movie_selection():
+                # Retrieve the selected movie name
+                selected_movie_name = selected_movie_var.get()
+                #screening_date_str = screening_date.strftime("%Y-%m-%d")
+
+                if selected_movie_name == "None":
+                    messagebox.showinfo("Info", "No movie selected.")
+                else:
+                    try:
+                        with open("screening.txt", "a") as file:
+                            file.write(
+                                f"\n"
+                                f"{selected_movie_name},{screening_date},{start_time_str},{end_time_str},{selected_hall_name}"
+                            )
+                        messagebox.showinfo("Sucess","A new screening has been added.")    
+                        messagebox.showinfo("Success", "A movie has been associated with the a screening.")
+                    except Exception as e:
+                        messagebox.showerror("Error writing movie details to file:", str(e))
+
+                movie_selection_window.destroy()
+                add_screening_window.destroy()
+
+            confirm_button = tk.Button(movie_selection_window, text="Confirm Selection", command=confirm_movie_selection)
+            confirm_button.grid(row=1, column=0, padx=10, pady=5)
+
+        create_button = tk.Button(add_screening_window, text="Create Screening", command=create_screening)
+        create_button.grid(row=4, column=0, columnspan=2, pady=10)
+
+
     def cancel_screening(self):
         pass
 

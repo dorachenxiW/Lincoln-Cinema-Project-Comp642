@@ -88,10 +88,15 @@ class Cinema:
         self.hallList.append(hall)
         return hall
     
+    def find_hall_by_name(self, name):
+        for hall in self.hallList:
+            if hall.name == name:
+                return hall  # Return the hall if the name matches
+        return None  # Return None if no hall with the specified name is found
+    
     def create_booking(self, customer: Customer, aScreening: Screening, seats: List[Seat], orderTotal: float, paymentDetail: str):
         booking = Booking(customer, aScreening, seats, orderTotal, paymentDetail)
-    
-        # Add the booking to the global booking list
+            # Add the booking to the global booking list
         self.bookingList.append(booking)
     
         # Associate the booking with the customer
