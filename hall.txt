@@ -1,4 +1,4 @@
-Hall 1,120,1:A:False:20;2:B:False:20;3:C:False:20;4:D:True:20;5:E:False:20
-Hall 2,90,1:A:False:20;2:B:False:20;3:C:True:20;4:D:False:20;5:E:False:20
-Hall 3,110,1:A:False:20;2:B:False:20;3:C:False:20;4:D:True:20;5:E:False:20
-Hall 4,80,1:A:False:20;2:B:True:20;3:C:False:20;4:D:False:20;5:E:False:20
+Hall 1,120,1:A:False:20;2:B:False:20;3:C:True:20;4:D:False:20;5:E:False:20;6:F:False:20;7:G:True:20
+Hall 2,90,1:A:False:20;2:B:False:20;3:C:True:20;4:D:False:20;5:E:False:20;6:F:False:20;7:G:False:20;8:H:True:20
+Hall 3,110,1:A:False:20;2:B:False:20;3:C:False:20;4:D:True:20;5:E:False:20;6:F:True:20;7:G:False:20;8:H:False:20
+Hall 4,80,1:A:False:20;2:B:True:20;3:C:False:20;4:D:False:20;5:E:False:20;6:F:False:20;7:G:True:20;8:H:False:20

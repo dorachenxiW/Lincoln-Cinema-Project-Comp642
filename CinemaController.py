@@ -193,19 +193,19 @@ class Cinema:
         self.screening_to_movie[screening.screeningID] = movie.title
         movie.addScreening(screening)
 
-    def add_movie_to_screening(self, screening: Screening, movie_title: str):
-        # Add the movie title to the screening in the dictionary
-        self.screening_to_movie[screening.screeningID] = movie_title
+    # def add_movie_to_screening(self, screening: Screening, movie_title: str):
+    #     # Add the movie title to the screening in the dictionary
+    #     self.screening_to_movie[screening.screeningID] = movie_title
 
-        # Find the movie by title
-        movie = self.cinema.find_movie_by_title(movie_title)
-        if movie:
-            # Add the screening to the movie
-            movie.addScreening(screening)
-        else:
-            print(f"Movie not found for title: {movie_title}")
+    #     # Find the movie by title
+    #     movie = self.cinema.find_movie_by_title(movie_title)
+    #     if movie:
+    #         # Add the screening to the movie
+    #         movie.addScreening(screening)
+    #     else:
+    #         print(f"Movie not found for title: {movie_title}")
 
-        print(self.screening_to_movie)  # Debugging: Print the updated dictionary
+    #     print(self.screening_to_movie)  # Debugging: Print the updated dictionary
   
 
     
@@ -223,7 +223,7 @@ class Cinema:
             for screening in movie.getScreenings():
                 movie.cancelScreening(screening)
             # Remove the movie from the self.screening_to_movie dictionary
-            if screening.screeningID in self.screening_to_movie:
+            if screening.screeningID in self.screening_to_movie: # Might be wrong here 
                 del self.screening_to_movie[screening.screeningID]
             return True
         return False
@@ -235,7 +235,7 @@ class Cinema:
             self.screeningsList.remove(screening)
             # Them remove all the movies in that screening 
             for movie in self.moviesList:
-                if screening in movie.getScreenings:
+                if screening in movie.getScreenings():
                     movie.cancelScreening(screening)
             
             return True

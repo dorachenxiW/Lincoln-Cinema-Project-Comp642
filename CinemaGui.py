@@ -1425,6 +1425,7 @@ class FifthPage(tk.Frame):
 
         # Retrieve the list of available screenings from your cinema
         available_screenings = self.cinema.screeningsList
+        print(available_screenings)
 
         # Create a Listbox to display the scheduled screenings
         screening_listbox = tk.Listbox(cancel_screening_window, width=60, height=10)
@@ -1450,36 +1451,61 @@ class FifthPage(tk.Frame):
             selected_screening_parts = selected_screening_details.split(", ")
     
             # Assuming the screeningID is the first part in the displayed details
-            selected_screening_id = selected_screening_parts[0]
+            selected_screening_id_str = selected_screening_parts[0]
+            selected_screening_id = int(selected_screening_id_str)
 
             # Find the screening object by its screeningID
-            screening = self.cinema.find_screening_by_id(selected_screening_id)
+            screening = self.cinema.find_screening_by_screening_number(selected_screening_id)
             
-            # Initialize a variable to store the movie title
-            movie_title = None
+            # Make a copy of the screening_to_movie dictionary
+            screening_to_movie_copy = self.cinema.screening_to_movie.copy()
+            
             # Find the movie title associated with the screening
-            for movie, screening_list in self.screening_to_movie.items():
-                if screening in screening_list:
-                    movie_title = movie.title
-                    break
+            print(screening_to_movie_copy)
+            for screeningID, movie_title in screening_to_movie_copy.items():
+                # Check if the selected screening ID exists in the dictionary
+               if selected_screening_id == screeningID:
+               # Remove the movie-screening pair from the screening_to_movie dictionary
+                    self.cinema.screening_to_movie.pop(selected_screening_id)
+                    print(self.cinema.screening_to_movie)
+            # cancel screening
+            self.cinema.remove_screening(screening) 
+            print("screening removed")
 
-            
-            # Remove the movie-screening pair from the screening_to_movie dictionary
-            if screening in self.screening_to_movie:
-                del self.screening_to_movie[screening]
-            # Delete the line from the screening.txt file
-            try:
-                with open("screening.txt", "r") as file:
-                    lines = file.readlines()
-                with open("screening.txt", "w") as file:
-                    for line in lines:
-                        if selected_movie_title not in line or selected_screening_date not in line:
-                            file.write(line)
+            # Read the contents of the screening.txt file
+            with open("screening.txt", "r") as file:
+                lines = file.readlines()
 
-                messagebox.showinfo("Success", f"The screening: {selected_movie_title}, {selected_screening_date}, {selected_start_time} has been canceled.")
-            except Exception as e:
-                messagebox.showerror("Error deleting the screening:", str(e))
+            # Create the selected line without the ID
+            # Extract the selected date
+            selected_line_parts = selected_screening_parts[1]
+            # Split the selected date into date and time parts
+            date_part, start_time_str, end_time_str,hall_name = selected_line_parts.split(',')
 
+            # Parse the selected date using the correct format and then format it as 'YYYY-MM-DD'
+            date_part_datetime = datetime.strptime(date_part, "%d-%m-%Y")
+            date_part_datetime_formatted = date_part_datetime.strftime("%Y-%m-%d")
+            selected_date = str(date_part_datetime_formatted)
+            selected_line_without_id = f"{selected_date}, {start_time_str}, {end_time_str}, {hall_name}"
+
+           # Create an updated list of lines without the canceled screening
+            updated_lines = []
+            for line in lines:
+                line_parts = line.strip().split(',')
+                if len(line_parts) > 1:
+                    line_without_first_part = ', '.join(line_parts[1:])
+                    print(line_without_first_part)
+                if selected_line_without_id != line_without_first_part:
+                    updated_lines.append(line)
+                    print(updated_lines)
+
+            # Write the updated content (excluding the canceled screening) back to the screening.txt file
+            with open("screening.txt", "w") as file:
+                file.writelines(updated_lines)
+                
+            messagebox.showinfo("Success", "Cancalling a screening successful.")
+            messagebox.showinfo("Success", "The movie scheduled in this screening is cancelled.")
+                
             # Update the listbox to reflect the changes
             screening_listbox.delete(selected_screening_index)
             cancel_screening_window.destroy()
