@@ -188,10 +188,25 @@ class Cinema:
         self.screeningsList.append(screening)
         return screening
     
-    def add_movie_to_screening(self,screening: Screening,movie:Movie):
+    def add_movie_to_screening(self,screening: Screening, movie:Movie):
         # Add the movie to the screening in the dictionary
         self.screening_to_movie[screening.screeningID] = movie.title
         movie.addScreening(screening)
+
+    def add_movie_to_screening(self, screening: Screening, movie_title: str):
+        # Add the movie title to the screening in the dictionary
+        self.screening_to_movie[screening.screeningID] = movie_title
+
+        # Find the movie by title
+        movie = self.cinema.find_movie_by_title(movie_title)
+        if movie:
+            # Add the screening to the movie
+            movie.addScreening(screening)
+        else:
+            print(f"Movie not found for title: {movie_title}")
+
+        print(self.screening_to_movie)  # Debugging: Print the updated dictionary
+  
 
     
     def find_screening_by_screening_number(self, screening_number):
