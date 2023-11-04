@@ -1226,8 +1226,74 @@ class FifthPage(tk.Frame):
         # Create a button to save the movie details
         save_button = tk.Button(add_movie_window, text="Save Movie", command=save_movie_details)
         save_button.grid(row=7, column=0, columnspan=2, pady=10)
+    
     def cancel_movie(self):
-        pass
+        # Create a pop-up window for movie cancellation
+        cancel_movie_window = tk.Toplevel(self)
+        cancel_movie_window.title("Cancel Movie")
+
+        # Retrieve the list of available movies from your cinema
+        available_movies = self.cinema.get_all_movies()
+
+        # Create a Listbox to display the scheduled movies
+        movie_listbox = tk.Listbox(cancel_movie_window, width=30, height=10)
+        for movie in available_movies:
+            movie_listbox.insert(tk.END, movie.title)  # Display movie titles
+        movie_listbox.pack(pady=20)
+
+        # Create a button to confirm the cancellation
+        def confirm_cancellation():
+            selected_movie_index = movie_listbox.curselection()
+            if not selected_movie_index:
+                messagebox.showinfo("Error", "Please select a movie to cancel.")
+                return
+
+            # Get the selected movie's title
+            selected_movie_index = selected_movie_index[0]  # Get the first selected index
+            selected_movie_title = movie_listbox.get(selected_movie_index)
+            print(selected_movie_title)
+
+            # Implement the cancellation logic here, e.g., remove the movie from your data
+            movie = self.cinema.find_movie_by_title(selected_movie_title)
+            self.cinema.cancel_movie(movie)
+
+            # Delete the line from the movie_info.txt file
+            try:
+                with open("movie_info.txt", "r") as file:
+                    lines = file.readlines()
+                with open("movie_info.txt", "w") as file:
+                    for line in lines:
+                        if selected_movie_title not in line:
+                            file.write(line)
+
+                messagebox.showinfo("Success", f"{selected_movie_title} has been canceled.")
+            except Exception as e:
+                messagebox.showerror("Error deleting the movie:", str(e))
+            
+            print("writing deleting screening")
+            print(movie)
+            print(movie.getScreenings())
+            if movie.getScreenings():
+                print(movie.getScreenings())
+                # Delete the lines in the screening.txt file for this movie
+                try:
+                    with open("screening.txt", "r") as file:
+                        lines = file.readlines()
+                    with open("screening.txt", "w") as file:
+                        for line in lines:
+                            if selected_movie_title not in line:
+                                file.write(line)
+                except Exception as e:
+                    messagebox.showerror("Error deleting screenings:", str(e))
+
+
+            # Update the listbox to reflect the changes
+            movie_listbox.delete(selected_movie_index)
+            cancel_movie_window.destroy()
+
+        cancel_button = tk.Button(cancel_movie_window, text="Cancel Movie", command=confirm_cancellation)
+        cancel_button.pack()
+
          
     def add_screening(self):
         # Create a pop-up window for adding a screening
@@ -1302,6 +1368,12 @@ class FifthPage(tk.Frame):
                 if selected_movie_name == "None":
                     messagebox.showinfo("Info", "No movie selected.")
                 else:
+                    movie = self.cinema.find_movie_by_title(selected_movie_name)
+                    # add this movie to screening
+                    self.cinema.add_movie_to_screening(screening,movie)
+                    print(movie)
+                    print(screening)
+                    print(movie.getScreenings())
                     try:
                         with open("screening.txt", "a") as file:
                             file.write(

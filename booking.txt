@@ -2,4 +2,3 @@ Dora,1,1000:1001,40,Credit Card
 Dora,3,1003,20,Cash
 Chloe,4,1005,20,Debit Card
 Dora,2,1009,20,Debit Card
-Yang,8,1008,20,Cash
