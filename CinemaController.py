@@ -191,6 +191,7 @@ class Cinema:
     def add_movie_to_screening(self,screening: Screening,movie:Movie):
         # Add the movie to the screening in the dictionary
         self.screening_to_movie[screening.screeningID] = movie.title
+        movie.addScreening(screening)
 
     
     def find_screening_by_screening_number(self, screening_number):
