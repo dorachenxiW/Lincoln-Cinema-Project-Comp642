@@ -1355,7 +1355,10 @@ class FifthPage(tk.Frame):
             def confirm_movie_selection():
                 # Retrieve the selected movie name
                 selected_movie_name = selected_movie_var.get()
-                #screening_date_str = screening_date.strftime("%Y-%m-%d")
+                print(type(selected_movie_name))
+                print(screening_date_str)
+                print(type(screening_date_str))
+                
 
                 if selected_movie_name == "None":
                     messagebox.showinfo("Info", "No movie selected.")
@@ -1363,6 +1366,7 @@ class FifthPage(tk.Frame):
                     movie = self.cinema.find_movie_by_title(selected_movie_name)
                     # add this movie to screening
                     self.cinema.add_movie_to_screening(screening,movie)
+                    print(f"{selected_movie_name},{screening_date_str},{start_time_str},{end_time_str},{selected_hall_name}")
                     try:
                         with open("screening.txt", "a") as file:
                             file.write(
