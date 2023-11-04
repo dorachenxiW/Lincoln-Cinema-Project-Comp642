@@ -1147,22 +1147,23 @@ class FifthPage(tk.Frame):
 
         # Create a function to save the movie details
         def save_movie_details():
-            try:
-                durationMins = int(durationMins)  # Convert input to an integer
-            except ValueError:
-                messagebox.showinfo("Error", "DurationMins must be a number.")
-                return  # Exit the function if 'durationMins' is not a number
             
             title = title_entry.get()
             description = description_entry.get()
-            durationMins = int(duration_entry.get())
+            durationMins = int(duration_entry.get()) 
             language = language_entry.get()
             releaseDate = release_date_calendar.get_date()
             country = country_entry.get()
             genre = genre_entry.get()
 
+            try:
+                durationMins = int(durationMins)  # Convert input to an integer
+            except ValueError:
+                messagebox.showinfo("Error", "DurationMins must be a number.")
+                return  # Exit the function if 'durationMins' is not a number
+
             # Call a function in your Cinema class to add the movie
-            movie = self.cinema.add_movie(title,description,durationMins,language,releaseDate,country,genre)
+            movie = self.cinema.add_movie(title,description,int(durationMins),language,releaseDate,country,genre)
 
             # Write it in the movie_info.txt
             try:
@@ -1430,6 +1431,8 @@ class FifthPage(tk.Frame):
     def log_out(self):
         # Notify the FourthPage to update its booking list
         self.app.frames[FourthPage].update_booking_list()
+        # Notify the First and Third Page to update movie list
+        self.app.frames[FirstPage].populate_movie_list()
         # Switch back to the login page when the Front Desk Staff logs out
         self.app.show_frame(SecondPage)
 
