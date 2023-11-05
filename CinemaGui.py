@@ -169,10 +169,8 @@ class FirstPage(tk.Frame):
         try:
             with open(file_name, "r") as file:
                 lines = file.readlines()
-                print(lines)
-
                 for line in lines:
-                    print("+1")
+  
                     screening_info = line.strip().split(',')
                     if len(screening_info) == 5:
                         movie_title, screeningDateStr, startTimeStr, endTimeStr, hall_name = screening_info
@@ -189,7 +187,6 @@ class FirstPage(tk.Frame):
                                 break
                         if hall:
                             screening = self.cinema.add_screening(screeningDate, startTime, endTime, hall)
-                            print(screening)
                             # Map the screening number to the movie title
                             self.cinema.screening_to_movie[screening.screeningID] = movie_title
 
@@ -1280,7 +1277,7 @@ class FifthPage(tk.Frame):
             self.cinema.cancel_movie(movie)
             
             if movie.getScreenings():
-                print(movie.getScreenings())
+                
                 # Delete the lines in the screening.txt file for this movie
                 try:
                     with open("screening.txt", "r") as file:
@@ -1397,7 +1394,6 @@ class FifthPage(tk.Frame):
                         if movie.title == selected_movie_name:
                             movie.addScreening(screening)
 
-                    print(f"{selected_movie_name},{screening_date_str},{start_time_str},{end_time_str},{selected_hall_name}")
                     try:
                         with open("screening.txt", "a") as file:
                             file.write(
@@ -1466,7 +1462,7 @@ class FifthPage(tk.Frame):
                if selected_screening_id == screeningID:
                # Remove the movie-screening pair from the screening_to_movie dictionary
                     self.cinema.screening_to_movie.pop(selected_screening_id)
-                    print(self.cinema.screening_to_movie)
+                    
             # cancel screening
             self.cinema.remove_screening(screening) 
 
