@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
+from tkinter import simpledialog
+from tkcalendar import Calendar
 from PIL import Image, ImageTk
 from CinemaController import Cinema
 from datetime import date, datetime
@@ -155,6 +157,7 @@ class FirstPage(tk.Frame):
 
                         # Create a Hall object with the parsed information
                         self.cinema.create_hall(name, totalSeats, listOfSeats)
+                        #print("hall created")
 
         except FileNotFoundError:
             messagebox.showinfo("Error", "Hall file not found.")
@@ -166,11 +169,11 @@ class FirstPage(tk.Frame):
         try:
             with open(file_name, "r") as file:
                 lines = file.readlines()
-
                 for line in lines:
+  
                     screening_info = line.strip().split(',')
                     if len(screening_info) == 5:
-                        title, screeningDateStr, startTimeStr, endTimeStr, hall_name = screening_info
+                        movie_title, screeningDateStr, startTimeStr, endTimeStr, hall_name = screening_info
 
                         screeningDate = datetime.strptime(screeningDateStr, "%Y-%m-%d")
                         startTime = datetime.strptime(startTimeStr, "%H:%M")
@@ -182,16 +185,17 @@ class FirstPage(tk.Frame):
                             if h.name == hall_name:
                                 hall = h
                                 break
-                        
-                        screening = self.cinema.add_screening(screeningDate, startTime, endTime, hall)
-                        # Map the screening number to the movie title
-                        self.cinema.screening_to_movie[screening.screeningID] = title
+                        if hall:
+                            screening = self.cinema.add_screening(screeningDate, startTime, endTime, hall)
+                            # Map the screening number to the movie title
+                            self.cinema.screening_to_movie[screening.screeningID] = movie_title
 
-                        # You can add the screening to the corresponding movie by matching the movie's title
-                        movies = self.cinema.get_all_movies()
-                        for movie in movies:
-                            if movie.title == title:
-                                movie.addScreening(screening)
+                            # You can add the screening to the corresponding movie by matching the movie's title
+                            movies = self.cinema.get_all_movies()
+                            for movie in movies:
+                                if movie.title == movie_title:
+                                    movie.addScreening(screening)
+
 
         except FileNotFoundError:
             messagebox.showinfo("Screening file not found.")
@@ -298,6 +302,10 @@ class FirstPage(tk.Frame):
                         ]
                         for line in schedule_info:
                             self.schedules_listbox.insert(tk.END, line)
+                else:
+                    # If no screening, for example, a newly added movie.
+                    schedule_info = "No available screening for this movie."
+                    self.schedules_listbox.insert(tk.END, schedule_info)            
             else:
                 # If the movie is not found, clear the details_listbox
                 self.details_listbox.delete(0, tk.END)
@@ -542,7 +550,6 @@ class ThirdPage(tk.Frame):
         # Read movie information file and populate the movie listbox with titles
         self.populate_movie_list()
        
-    
     def update_booking_list(self):
         # Clear the previous list box entries
         self.bookings_listbox.delete(0, tk.END)
@@ -578,7 +585,6 @@ class ThirdPage(tk.Frame):
                 # Insert the accumulated booking details into the bookings_listbox
                 for text in booking_texts:
                     self.bookings_listbox.insert(tk.END, text)
-
     
     def populate_movie_list(self):
         # Get a list of movie objects from the Cinema class
@@ -589,7 +595,6 @@ class ThirdPage(tk.Frame):
         for movie in movies:
             self.movie_listbox.insert(tk.END, movie.title)
     
-
     def view_movie(self):
         #print("View Movie button clicked")  # Add this line
         # Get the selected item(s) from the movie_listbox
@@ -632,6 +637,10 @@ class ThirdPage(tk.Frame):
 
                         for line in schedule_info:
                             self.schedules_listbox.insert(tk.END, line)
+                else:
+                    # If no screening, for example, a newly added movie.
+                    schedule_info = "No available screening for this movie."
+                    self.schedules_listbox.insert(tk.END, schedule_info)   
             else:
                 # If the movie is not found, clear the details_listbox
                 self.details_listbox.delete(0, tk.END)
@@ -801,7 +810,6 @@ class FourthPage(tk.Frame):
         self.selected_customer = None
 
         # Create a label for "Welcome Front Desk Staff" at the top
-       
         welcome_label = tk.Label(self, text="Welcome Front Desk Staff", font=("Arial Bold", 22))
         welcome_label.grid(row=0, column=0, columnspan=3, pady=10)
 
@@ -841,24 +849,45 @@ class FourthPage(tk.Frame):
         self.populate_screening_combobox()
         self.update_booking_list()  # Initial update
 
+    # def populate_screening_combobox(self):
+    #     # Get a list of all screenings from the Cinema class
+    #     screenings = self.cinema.screeningsList
 
+    #     # Clear previous values
+    #     self.screening_combobox.set("Select a screening")
+
+    #     # Populate the screening Combobox with screening details
+    #     screening_values = []
+    #     for screening in screenings:
+    #         screening_text = (
+    #             f"Screening {screening.screeningID}, "
+    #             f"{self.cinema.screening_to_movie[screening.screeningID]}, "
+    #             f"{screening.screeningDate.strftime('%d-%m-%Y')} {screening.startTime.strftime('%H:%M')}-{screening.endTime.strftime('%H:%M')}, "
+    #             f"{screening.hall.name}"
+    #         )
+    #         screening_values.append(screening_text)
+
+    #     # Set the values of the Combobox
+    #     self.screening_combobox["values"] = tuple(screening_values)
     def populate_screening_combobox(self):
-        # Get a list of all screenings from the Cinema class
-        screenings = self.cinema.screeningsList
+        # Get the screening to movie dictionary from the Cinema class
+        screening_to_movie = self.cinema.screening_to_movie
 
         # Clear previous values
         self.screening_combobox.set("Select a screening")
 
-        # Populate the screening Combobox with screening details
+        # Populate the screening Combobox with screening to movie details
         screening_values = []
-        for screening in screenings:
-            screening_text = (
-                f"Screening {screening.screeningID}, "
-                f"{self.cinema.screening_to_movie[screening.screeningID]}, "
-                f"{screening.screeningDate.strftime('%d-%m-%Y')} {screening.startTime.strftime('%H:%M')}-{screening.endTime.strftime('%H:%M')}, "
-                f"{screening.hall.name}"
-            )
-            screening_values.append(screening_text)
+        for screening_id, movie_title in screening_to_movie.items():
+            screening = self.cinema.find_screening_by_screening_number(screening_id)  # You may need to implement this function in your Cinema class
+            if screening:
+                screening_text = (
+                    f"Screening {screening_id}, "
+                    f"{movie_title}, "
+                    f"{screening.screeningDate.strftime('%d-%m-%Y')} {screening.startTime.strftime('%H:%M')}-{screening.endTime.strftime('%H:%M')}, "
+                    f"{screening.hall.name}"
+                )
+                screening_values.append(screening_text)
 
         # Set the values of the Combobox
         self.screening_combobox["values"] = tuple(screening_values)
@@ -937,6 +966,7 @@ class FourthPage(tk.Frame):
             
             # Calculate the order total based on selected seats
             order_total = sum(seat.seatPrice for seat in selected_seats)
+            order_total_str = format(order_total, '.0f')
             # Create a Booking object with the retrieved information
             booking = self.cinema.make_booking(selected_customer, selected_screening, selected_seats, order_total, selected_payment_method)
             # Add the booking to the bookings_listbox
@@ -960,10 +990,24 @@ class FourthPage(tk.Frame):
                 )
 
             self.bookings_listbox.insert(tk.END, booking_text)
+            # Write the new booking in the booking.txt
+            selected_seat_ID = []
+            for selected_seat in selected_seats:
+                seatID = selected_seat.seatID
+                selected_seat_ID.append(seatID)
+            if len(selected_seat_ID) >= 1:
+                try:
+                    with open("booking.txt", "a") as file:
+                      # Join the selected seat IDs with colons if there are multiple seats
+                        seats_str = ":".join(map(str, selected_seat_ID))
+                        file.write(
+                            f"{selected_customer_name},{screening_id_str},{seats_str},"
+                            f"{order_total_str},{selected_payment_method}\n"
+                        )
+                    messagebox.showinfo("Success", "A new booking has been added.")
+                except Exception as e:
+                    messagebox.showerror("Error writing booking details to file:", str(e))
             
-            #print("booking created")
-            messagebox.showinfo("Success", "A booking has been made.")
-
             # Close the pop-up window
             booking_window.destroy()
         confirm_button = tk.Button(booking_window, text="Confirm Booking", command=confirm_booking)
@@ -997,6 +1041,26 @@ class FourthPage(tk.Frame):
         if booking_to_cancel is not None:
             # Remove the booking from the Cinema class
             self.cinema.cancel_booking(booking_to_cancel)  # Implement this method in your Cinema class
+            # Read the content of "booking.txt" into a list of lines
+            with open("booking.txt", "r") as file:
+                lines = file.readlines()
+
+            # Find the index of the line to be deleted
+            line_index = None
+            for i, line in enumerate(lines):
+        
+                if str(booking_id) in line:
+                    line_index = i
+                    print(line_index)
+                    break
+
+            if line_index is not None:
+                # Remove the line from the list of lines
+                del lines[line_index]
+
+                # Write the updated list of lines back to "booking.txt"
+                with open("booking.txt", "w") as file:
+                    file.writelines(lines)
 
             # Remove the booking from the bookings_listbox
             self.bookings_listbox.delete(selected_index)
@@ -1005,7 +1069,6 @@ class FourthPage(tk.Frame):
         else:
             messagebox.showinfo("Error", "Selected booking not found.")
     
-
     def log_out(self):
         self.app.show_frame(SecondPage)
 
@@ -1079,45 +1142,404 @@ class FifthPage(tk.Frame):
         # Create a button to cancel selected booking
         cancel_booking_button = tk.Button(self, text="Cancel Selected Booking", font=("Arial", 15), command=self.cancel_selected_booking)
         cancel_booking_button.grid(row=6, column=0, columnspan=2, padx=(10, 20), pady=10)
+        
+        # Create buttons to perform administrative actions
+        #button_padding = (10, 20)
+        add_movie_button = tk.Button(self, text="Add a Movie", font=("Arial", 15), command=self.add_movie)
+        add_movie_button.grid(row=7, column=0, columnspan=1, padx=0, pady=10)
 
+        cancel_movie_button = tk.Button(self, text="Cancel a Movie", font=("Arial", 15), command=self.cancel_movie)
+        cancel_movie_button.grid(row=7, column=1, columnspan=1, padx=0, pady=10)
+
+        add_screening_button = tk.Button(self, text="Add a Screening", font=("Arial", 15), command=self.add_screening)
+        add_screening_button.grid(row=8, column=0, columnspan=1, padx=0, pady=10)
+
+        cancel_screening_button = tk.Button(self, text="Cancel a Screening", font=("Arial", 15), command=self.cancel_screening)
+        cancel_screening_button.grid(row=8, column=1, columnspan=1, padx=0, pady=10)
+        
+        
         # Create a button to log out at the very bottom
         log_out_button = tk.Button(self, text="Log Out", font=("Arial", 15), command=self.log_out)
-        log_out_button.grid(row=8, column=0, columnspan=2, padx=(10, 20), pady=10)
+        log_out_button.grid(row=9, column=0, columnspan=2, padx=(10, 20), pady=10)
 
         self.populate_customer_combobox()
         self.populate_screening_combobox()
         
         self.update_booking_list()  # Initial update
+    
+    def add_movie(self):
+        # Create a pop-up window for adding a movie
+        add_movie_window = tk.Toplevel(self)
+        add_movie_window.title("Add a Movie")
 
+        # Create input fields for movie details
+        title_label = tk.Label(add_movie_window, text="Title:")
+        title_label.grid(row=0, column=0, padx=10, pady=5)
+        title_entry = tk.Entry(add_movie_window)
+        title_entry.grid(row=0, column=1, padx=10, pady=5)
+
+        description_label = tk.Label(add_movie_window, text="Description:")
+        description_label.grid(row=1, column=0, padx=10, pady=5)
+        description_entry = tk.Entry(add_movie_window)
+        description_entry.grid(row=1, column=1, padx=10, pady=5)
+
+        duration_label = tk.Label(add_movie_window, text="Duration (Mins):")
+        duration_label.grid(row=2, column=0, padx=10, pady=5)
+        duration_entry = tk.Entry(add_movie_window)
+        duration_entry.grid(row=2, column=1, padx=10, pady=5)
+
+        language_label = tk.Label(add_movie_window, text="Language:")
+        language_label.grid(row=3, column=0, padx=10, pady=5)
+        language_entry = tk.Entry(add_movie_window)
+        language_entry.grid(row=3, column=1, padx=10, pady=5)
+
+        release_date_label = tk.Label(add_movie_window, text="Release Date:")
+        release_date_label.grid(row=4, column=0, padx=10, pady=5)
+        release_date_calendar = Calendar(add_movie_window, date_pattern="yyyy-mm-dd")
+        release_date_calendar.grid(row=4, column=1, padx=10, pady=5)
+
+        country_label = tk.Label(add_movie_window, text="Country:")
+        country_label.grid(row=5, column=0, padx=10, pady=5)
+        country_entry = tk.Entry(add_movie_window)
+        country_entry.grid(row=5, column=1, padx=10, pady=5)
+
+        genre_label = tk.Label(add_movie_window, text="Genre:")
+        genre_label.grid(row=6, column=0, padx=10, pady=5)
+        genre_entry = tk.Entry(add_movie_window)
+        genre_entry.grid(row=6, column=1, padx=10, pady=5)
+
+        # Create a function to save the movie details
+        def save_movie_details():
+            
+            title = title_entry.get()
+            description = description_entry.get()
+            durationMins = int(duration_entry.get()) 
+            language = language_entry.get()
+            releaseDate_str = release_date_calendar.get_date()
+            releaseDate = datetime.strptime(releaseDate_str, "%Y-%m-%d").date()
+            country = country_entry.get()
+            genre = genre_entry.get()
+            
+            try:
+                durationMins = int(durationMins)  # Convert input to an integer
+            except ValueError:
+                messagebox.showinfo("Error", "DurationMins must be a number.")
+                return  # Exit the function if 'durationMins' is not a number
+
+            # Call a function in your Cinema class to add the movie
+            movie = self.cinema.add_movie(title,description,int(durationMins),language,releaseDate,country,genre)
+
+            # Write it in the movie_info.txt
+            try:
+                with open("movie_info.txt", "a") as file:
+                    file.write(
+                        f"{title},{description},{durationMins},{language},"
+                        f"{releaseDate},{country},{genre}\n"
+                    )
+                    messagebox.showinfo("success","A new movie has been added.")
+            except Exception as e:
+                messagebox.showerror("Error writing movie details to file:", str(e))
+
+            # Close the pop-up window
+            add_movie_window.destroy()
+
+        # Create a button to save the movie details
+        save_button = tk.Button(add_movie_window, text="Save Movie", command=save_movie_details)
+        save_button.grid(row=7, column=0, columnspan=2, pady=10)
+    
+    def cancel_movie(self):
+        # Create a pop-up window for movie cancellation
+        cancel_movie_window = tk.Toplevel(self)
+        cancel_movie_window.title("Cancel Movie")
+
+        # Retrieve the list of available movies from your cinema
+        available_movies = self.cinema.get_all_movies()
+
+        # Create a Listbox to display the scheduled movies
+        movie_listbox = tk.Listbox(cancel_movie_window, width=30, height=10)
+        for movie in available_movies:
+            movie_listbox.insert(tk.END, movie.title)  # Display movie titles
+        movie_listbox.pack(pady=20)
+
+        # Create a button to confirm the cancellation
+        def confirm_cancellation():
+            selected_movie_index = movie_listbox.curselection()
+            if not selected_movie_index:
+                messagebox.showinfo("Error", "Please select a movie to cancel.")
+                return
+
+            # Get the selected movie's title
+            selected_movie_index = selected_movie_index[0]  # Get the first selected index
+            selected_movie_title = movie_listbox.get(selected_movie_index)
+
+            # Implement the cancellation logic here, e.g., remove the movie from your data
+            movie = self.cinema.find_movie_by_title(selected_movie_title)
+            self.cinema.cancel_movie(movie)
+            
+            if movie.getScreenings():
+                
+                # Delete the lines in the screening.txt file for this movie
+                try:
+                    with open("screening.txt", "r") as file:
+                        lines = file.readlines()
+                    with open("screening.txt", "w") as file:
+                        for line in lines:
+                            if selected_movie_title not in line:
+                                file.write(line)
+                except Exception as e:
+                    messagebox.showerror("Error deleting screenings:", str(e))
+
+            # Delete the line from the movie_info.txt file
+            try:
+                with open("movie_info.txt", "r") as file:
+                    lines = file.readlines()
+                with open("movie_info.txt", "w") as file:
+                    for line in lines:
+                        if selected_movie_title not in line:
+                            file.write(line)
+
+                messagebox.showinfo("Success", f"The movie: {selected_movie_title} and its screenigns have been canceled.")
+            except Exception as e:
+                messagebox.showerror("Error deleting the movie:", str(e))
+            
+            
+            # Update the listbox to reflect the changes
+            #self.populate_screening_combobox()
+            movie_listbox.delete(selected_movie_index)
+            cancel_movie_window.destroy()
+
+        cancel_button = tk.Button(cancel_movie_window, text="Cancel Movie", command=confirm_cancellation)
+        cancel_button.pack()
+ 
+    def add_screening(self):
+        # Create a pop-up window for adding a screening
+        add_screening_window = tk.Toplevel(self)
+        add_screening_window.title("Add a Screening")
+
+         # Create input fields for screening details
+        screening_date_label = tk.Label(add_screening_window, text="Screening Date:")
+        screening_date_label.grid(row=0, column=0, padx=10, pady=5)
+        screening_date_calendar = Calendar(add_screening_window, date_pattern="yyyy-mm-dd")
+        screening_date_calendar.grid(row=0, column=1, padx=10, pady=5)
+
+        start_time_label = tk.Label(add_screening_window, text="Start Time (HH:MM):")
+        start_time_label.grid(row=1, column=0, padx=10, pady=5)
+        start_time_entry = tk.Entry(add_screening_window)
+        start_time_entry.grid(row=1, column=1, padx=10, pady=5)
+
+        end_time_label = tk.Label(add_screening_window, text="End Time (HH:MM):")
+        end_time_label.grid(row=2, column=0, padx=10, pady=5)
+        end_time_entry = tk.Entry(add_screening_window)
+        end_time_entry.grid(row=2, column=1, padx=10, pady=5)
+
+        hall_label = tk.Label(add_screening_window, text="Hall:")
+        hall_label.grid(row=3, column=0, padx=10, pady=5)
+
+        # Create a combo box for selecting a hall and populate it with available halls
+        hall_combobox = ttk.Combobox(add_screening_window, values=["Hall 1", "Hall 2", "Hall 3", "Hall 4"])
+        hall_combobox.grid(row=3, column=1, padx=10, pady=5)
+
+        def create_screening():
+            # Retrieve the selected screening details
+            screening_date_str = screening_date_calendar.get_date()
+            start_time_str = start_time_entry.get()
+            end_time_str = end_time_entry.get()
+            selected_hall_name = hall_combobox.get()
+
+            # Define the time format expected from the user (24-hour format)
+            time_format = "%H:%M"  # HH:MM format
+
+            try:
+                screening_date = datetime.strptime(screening_date_str, "%Y-%m-%d").date()
+                start_time = datetime.strptime(start_time_str, time_format)
+                end_time = datetime.strptime(end_time_str, time_format)
+            except ValueError:
+                messagebox.showinfo("Error", "Invalid time format. Please use HH:MM 24-hour format.")
+
+            # Find the hall object from the selected hall name
+            hall = self.cinema.find_hall_by_name(selected_hall_name)
+
+            # Create the screening object with the selected details, hall, and movie (if applicable)
+            screening = self.cinema.add_screening(screening_date, start_time, end_time, hall)
+
+            # You can handle movie association here if needed
+            # Retrieve the list of available movies from your cinema
+            available_movies = self.cinema.get_all_movies()
+
+            # Create a pop-up window for movie selection
+            movie_selection_window = tk.Toplevel(self)
+            movie_selection_window.title("Select a Movie for Screening")
+
+            # Create a Combobox for selecting a movie
+            selected_movie_var = tk.StringVar()
+            selected_movie_var.set("Select a movie")
+            movie_combobox = ttk.Combobox(movie_selection_window, textvariable=selected_movie_var)
+            movie_combobox['values'] = ["None"] + [movie.title for movie in available_movies]
+            movie_combobox.grid(row=0, column=0, padx=10, pady=5)
+
+            def confirm_movie_selection():
+                # Retrieve the selected movie name
+                selected_movie_name = selected_movie_var.get()
+
+                if selected_movie_name == "None":
+                    messagebox.showinfo("Info", "No movie selected.")
+                else:
+                    #movie = self.cinema.find_movie_by_title(selected_movie_name)
+                    # Map the screening number to the movie title
+                    self.cinema.screening_to_movie[screening.screeningID] = selected_movie_name
+
+                    # You can add the screening to the corresponding movie by matching the movie's title
+                    movies = self.cinema.get_all_movies()
+                    for movie in movies:
+                        if movie.title == selected_movie_name:
+                            movie.addScreening(screening)
+
+                    try:
+                        with open("screening.txt", "a") as file:
+                            file.write(
+                                f"\n"
+                                f"{selected_movie_name},{screening_date_str},{start_time_str},{end_time_str},{selected_hall_name}"
+                            )
+                        messagebox.showinfo("Sucess","A new screening has been added.")    
+                        messagebox.showinfo("Success", "A movie has been associated with the a screening.")
+                        self.populate_screening_combobox()
+                    except Exception as e:
+                        messagebox.showerror("Error writing movie details to file:", str(e))
+
+                movie_selection_window.destroy()
+                add_screening_window.destroy()
+
+            confirm_button = tk.Button(movie_selection_window, text="Confirm Selection", command=confirm_movie_selection)
+            confirm_button.grid(row=1, column=0, padx=10, pady=5)
+
+        create_button = tk.Button(add_screening_window, text="Create Screening", command=create_screening)
+        create_button.grid(row=4, column=0, columnspan=2, pady=10)
+
+    def cancel_screening(self):
+        # Create a pop-up window for screening cancellation
+        cancel_screening_window = tk.Toplevel(self)
+        cancel_screening_window.title("Cancel Screening")
+
+        # Retrieve the list of available screenings from your cinema
+        available_screenings = self.cinema.screeningsList
+
+        # Create a Listbox to display the scheduled screenings
+        screening_listbox = tk.Listbox(cancel_screening_window, width=60, height=10)
+        for screening in available_screenings:
+            screening_listbox.insert(tk.END, f"{screening.screeningID}, {screening.screeningDate.strftime('%d-%m-%Y')}," 
+                                     f"{screening.startTime.strftime('%H:%M')},{screening.endTime.strftime('%H:%M')},"
+                                     f"{screening.hall.name}"
+                                     )
+        screening_listbox.pack(pady=20)
+
+        # Create a button to confirm the cancellation
+        def confirm_cancellation():
+            selected_screening_index = screening_listbox.curselection()
+            if not selected_screening_index:
+                messagebox.showinfo("Error", "Please select a screening to cancel.")
+                return
+
+            # Get the selected screening's details
+            selected_screening_index = selected_screening_index[0]  # Get the first selected index
+            selected_screening_details = screening_listbox.get(selected_screening_index)
+
+            # Split the selected details to extract the screeningID and other information
+            selected_screening_parts = selected_screening_details.split(", ")
+    
+            # Assuming the screeningID is the first part in the displayed details
+            selected_screening_id_str = selected_screening_parts[0]
+            selected_screening_id = int(selected_screening_id_str)
+
+            # Find the screening object by its screeningID
+            screening = self.cinema.find_screening_by_screening_number(selected_screening_id)
+            
+            # Make a copy of the screening_to_movie dictionary
+            screening_to_movie_copy = self.cinema.screening_to_movie.copy()
+            
+            # Find the movie title associated with the screening
+            for screeningID, movie_title in screening_to_movie_copy.items():
+                # Check if the selected screening ID exists in the dictionary
+               if selected_screening_id == screeningID:
+               # Remove the movie-screening pair from the screening_to_movie dictionary
+                    self.cinema.screening_to_movie.pop(selected_screening_id)
+                    
+            # cancel screening
+            self.cinema.remove_screening(screening) 
+
+            # Read the contents of the screening.txt file
+            with open("screening.txt", "r") as file:
+                lines = file.readlines()
+
+            # Create the selected line without the ID
+            # Extract the selected date
+            selected_line_parts = selected_screening_parts[1]
+            # Split the selected date into date and time parts
+            date_part, start_time_str, end_time_str,hall_name = selected_line_parts.split(',')
+
+            # Parse the selected date using the correct format and then format it as 'YYYY-MM-DD'
+            date_part_datetime = datetime.strptime(date_part, "%d-%m-%Y")
+            date_part_datetime_formatted = date_part_datetime.strftime("%Y-%m-%d")
+            selected_date = str(date_part_datetime_formatted)
+            selected_line_without_id = f"{selected_date}, {start_time_str}, {end_time_str}, {hall_name}"
+
+           # Create an updated list of lines without the canceled screening
+            updated_lines = []
+            for line in lines:
+                line_parts = line.strip().split(',')
+                if len(line_parts) > 1:
+                    line_without_first_part = ', '.join(line_parts[1:])
+                   
+                if selected_line_without_id != line_without_first_part:
+                    updated_lines.append(line)
+                   
+
+            # Write the updated content (excluding the canceled screening) back to the screening.txt file
+            with open("screening.txt", "w") as file:
+                file.writelines(updated_lines)
+
+            messagebox.showinfo("Success", "Cancalling a screening successful.")
+            messagebox.showinfo("Success", "The movie scheduled in this screening is cancelled.")
+            
+            self.populate_screening_combobox()
+                
+            # Update the listbox to reflect the changes
+            screening_listbox.delete(selected_screening_index)
+            cancel_screening_window.destroy()
+
+        cancel_button = tk.Button(cancel_screening_window, text="Cancel Screening", command=confirm_cancellation)
+        cancel_button.pack()
 
     def populate_screening_combobox(self):
-        # Get a list of all screenings from the Cinema class
-        screenings = self.cinema.screeningsList
+        # Get the screening to movie dictionary from the Cinema class
+        screening_to_movie = self.cinema.screening_to_movie
 
         # Clear previous values
         self.screening_combobox.set("Select a screening")
 
-        # Populate the screening Combobox with screening details
+        # Populate the screening Combobox with screening to movie details
         screening_values = []
-        for screening in screenings:
-            screening_text = (
-                f"Screening {screening.screeningID}, "
-                f"{self.cinema.screening_to_movie[screening.screeningID]}, "
-                f"{screening.screeningDate.strftime('%d-%m-%Y')} {screening.startTime.strftime('%H:%M')}-{screening.endTime.strftime('%H:%M')}, "
-                f"{screening.hall.name}"
-            )
-            screening_values.append(screening_text)
+        for screening_id, movie_title in screening_to_movie.items():
+            screening = self.cinema.find_screening_by_screening_number(screening_id)  # You may need to implement this function in your Cinema class
+            if screening:
+                screening_text = (
+                    f"Screening {screening_id}, "
+                    f"{movie_title}, "
+                    f"{screening.screeningDate.strftime('%d-%m-%Y')} {screening.startTime.strftime('%H:%M')}-{screening.endTime.strftime('%H:%M')}, "
+                    f"{screening.hall.name}"
+                )
+                screening_values.append(screening_text)
 
         # Set the values of the Combobox
         self.screening_combobox["values"] = tuple(screening_values)
+
 
     def populate_customer_combobox(self):
         # Get a list of customer names from the Cinema class
         customers = self.cinema.get_all_customers()
 
         # Populate the customer Combobox with customer names
-        self.customer_combobox["values"] = [customer.name for customer in customers]
-    
+        self.customer_combobox["values"] = [customer.name for customer in customers]  
+
     def open_seat_payment_window(self):
         # Retrieve the selected screening and customer
         selected_screening_text = self.screening_combobox.get()
@@ -1185,8 +1607,11 @@ class FifthPage(tk.Frame):
             
             # Calculate the order total based on selected seats
             order_total = sum(seat.seatPrice for seat in selected_seats)
+            order_total_str = format(order_total, '.0f')
+
             # Create a Booking object with the retrieved information
             booking = self.cinema.make_booking(selected_customer, selected_screening, selected_seats, order_total, selected_payment_method)
+            #print("booking made")
             # Add the booking to the bookings_listbox
             # Get movie tile 
             movie_title = self.cinema.find_movie_by_screening_number(int(screening_id_str))
@@ -1208,12 +1633,28 @@ class FifthPage(tk.Frame):
                 )
 
             self.bookings_listbox.insert(tk.END, booking_text)
-            
-            #print("booking created")
-            messagebox.showinfo("Success", "A booking has been made.")
+            # Write the new booking in the booking.txt
+            selected_seat_ID = []
+            for selected_seat in selected_seats:
+                seatID = selected_seat.seatID
+                selected_seat_ID.append(seatID)
+            if len(selected_seat_ID) >= 1:
+                try:
+                    with open("booking.txt", "a") as file:
+                      # Join the selected seat IDs with colons if there are multiple seats
+                        seats_str = ":".join(map(str, selected_seat_ID))
+                        file.write(
+                            f"{selected_customer_name},{screening_id_str},{seats_str},"
+                            f"{order_total_str},{selected_payment_method}\n"
+                        )
 
+                    messagebox.showinfo("Success", "A new booking has been added.")
+                except Exception as e:
+                    messagebox.showerror("Error writing booking details to file:", str(e))
+                    
             # Close the pop-up window
             booking_window.destroy()
+
         confirm_button = tk.Button(booking_window, text="Confirm Booking", command=confirm_booking)
         confirm_button.pack()    
     
@@ -1246,6 +1687,27 @@ class FifthPage(tk.Frame):
             # Remove the booking from the Cinema class
             self.cinema.cancel_booking(booking_to_cancel)  # Implement this method in your Cinema class
 
+            # Read the content of "booking.txt" into a list of lines
+            with open("booking.txt", "r") as file:
+                lines = file.readlines()
+
+            # Find the index of the line to be deleted
+            line_index = None
+            for i, line in enumerate(lines):
+        
+                if str(booking_id) in line:
+                    line_index = i
+                    print(line_index)
+                    break
+
+            if line_index is not None:
+                # Remove the line from the list of lines
+                del lines[line_index]
+
+                # Write the updated list of lines back to "booking.txt"
+                with open("booking.txt", "w") as file:
+                    file.writelines(lines)
+
             # Remove the booking from the bookings_listbox
             self.bookings_listbox.delete(selected_index)
 
@@ -1253,10 +1715,13 @@ class FifthPage(tk.Frame):
         else:
             messagebox.showinfo("Error", "Selected booking not found.")
     
-    
     def log_out(self):
         # Notify the FourthPage to update its booking list
         self.app.frames[FourthPage].update_booking_list()
+        self.app.frames[FourthPage].populate_screening_combobox()
+        # Notify the First and Third Page to update movie list
+        self.app.frames[FirstPage].populate_movie_list()
+        self.app.frames[ThirdPage].populate_movie_list()
         # Switch back to the login page when the Front Desk Staff logs out
         self.app.show_frame(SecondPage)
 
@@ -1289,7 +1754,6 @@ class FifthPage(tk.Frame):
 
             # Insert the updated booking details into the bookings_listbox
             self.bookings_listbox.insert(tk.END, booking_text)
-
 
 class Application(tk.Tk):
     def __init__(self, *args, **kwargs):
@@ -1334,6 +1798,6 @@ class Application(tk.Tk):
 
 if __name__ == "__main__":
     app = Application()
-    app.geometry("900x600")
+    app.geometry("900x620")
     app.title("Lincoln Cinemas")
     app.mainloop()

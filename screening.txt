@@ -5,3 +5,5 @@ The Marvels,2023-11-02,14:00,16:00,Hall 1
 The Marvels,2023-11-03,12:00,14:00,Hall 2
 PAW Patrol,2023-11-03,15:00,17:00,Hall 3
 PAW Patrol,2023-11-04,14:00,16:00,Hall 4
+Dumb Money,2023-11-07,09:00,11:00,Hall 3
+Taylor Swift the Eras Tour,2023-11-21,08:30,10:30,Hall 1

@@ -88,10 +88,15 @@ class Cinema:
         self.hallList.append(hall)
         return hall
     
+    def find_hall_by_name(self, name):
+        for hall in self.hallList:
+            if hall.name == name:
+                return hall  # Return the hall if the name matches
+        return None  # Return None if no hall with the specified name is found
+    
     def create_booking(self, customer: Customer, aScreening: Screening, seats: List[Seat], orderTotal: float, paymentDetail: str):
         booking = Booking(customer, aScreening, seats, orderTotal, paymentDetail)
-    
-        # Add the booking to the global booking list
+            # Add the booking to the global booking list
         self.bookingList.append(booking)
     
         # Associate the booking with the customer
@@ -164,11 +169,11 @@ class Cinema:
         return None  # Return None if the movie is not found
 
     def add_movie(self, title: str, description: str, durationMins: int, language: str, releaseDate: datetime, country: str, genre: str):
-
         # Create a new Movie and add it to the list of movies
         movie = Movie(title, description, durationMins, language, releaseDate, country, genre)
         self.moviesList.append(movie)
-        #print(self.moviesList)
+        #print(movie)
+        return movie
 
     def get_all_movies(self):
         return self.moviesList    
@@ -183,6 +188,27 @@ class Cinema:
         self.screeningsList.append(screening)
         return screening
     
+    def add_movie_to_screening(self,screening: Screening, movie:Movie):
+        # Add the movie to the screening in the dictionary
+        self.screening_to_movie[screening.screeningID] = movie.title
+        movie.addScreening(screening)
+
+    # def add_movie_to_screening(self, screening: Screening, movie_title: str):
+    #     # Add the movie title to the screening in the dictionary
+    #     self.screening_to_movie[screening.screeningID] = movie_title
+
+    #     # Find the movie by title
+    #     movie = self.cinema.find_movie_by_title(movie_title)
+    #     if movie:
+    #         # Add the screening to the movie
+    #         movie.addScreening(screening)
+    #     else:
+    #         print(f"Movie not found for title: {movie_title}")
+
+    #     print(self.screening_to_movie)  # Debugging: Print the updated dictionary
+  
+
+    
     def find_screening_by_screening_number(self, screening_number):
         for screening in self.screeningsList:
             if screening.screeningID == screening_number:
@@ -194,9 +220,13 @@ class Cinema:
         # Cancel a movie and all its screenings
         if movie in self.moviesList:
             self.moviesList.remove(movie)
-            for screening in movie.getScreenings:
+            for screening in movie.getScreenings():
                 movie.cancelScreening(screening)
-            return True
+            return True    
+            # # Remove the movie from the self.screening_to_movie dictionary
+            # if screening.screeningID in self.screening_to_movie: # Might be wrong here 
+            #     del self.screening_to_movie[screening.screeningID]
+            # return True
         return False
 
     def remove_screening(self, screening: Screening) -> bool:
@@ -206,7 +236,7 @@ class Cinema:
             self.screeningsList.remove(screening)
             # Them remove all the movies in that screening 
             for movie in self.moviesList:
-                if screening in movie.getScreenings:
+                if screening in movie.getScreenings():
                     movie.cancelScreening(screening)
             
             return True
@@ -288,3 +318,6 @@ class Cinema:
         notification_content = f"Booking {booking.bookingNum} has been canceled."
         notification = Notification(notificationID, notification_content)  # Create a new Notification object
         self.send_notification(customer, notification)  # Send the notification to the customer
+
+# cinema = Cinema()
+# print(cinema.moviesList)
