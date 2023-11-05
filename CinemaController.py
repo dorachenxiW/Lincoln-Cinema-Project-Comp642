@@ -73,27 +73,6 @@ class Cinema:
         self.users[username] = customer
         self.customers[username] = customer
        
-
-    def get_all_customers(self):
-        return list(self.customers.values())
-
-    def create_seat(self,seatNumber, seatColumn, isReserved,seatPrice):
-        seat = Seat(seatNumber, seatColumn, isReserved,seatPrice)
-        self.seatsList.append(seat)
-        return seat
-
-    def create_hall(self, name, totalSeats,listOfSeats):
-        hall = Hall(name, totalSeats, listOfSeats)
-        #  Add the hall to the cinema
-        self.hallList.append(hall)
-        return hall
-    
-    def find_hall_by_name(self, name):
-        for hall in self.hallList:
-            if hall.name == name:
-                return hall  # Return the hall if the name matches
-        return None  # Return None if no hall with the specified name is found
-    
     def create_booking(self, customer: Customer, aScreening: Screening, seats: List[Seat], orderTotal: float, paymentDetail: str):
         booking = Booking(customer, aScreening, seats, orderTotal, paymentDetail)
             # Add the booking to the global booking list
@@ -106,7 +85,33 @@ class Cinema:
             self.customer_bookings[customer].append(booking)  # Append to the existing list
         return booking
 
+    def create_seat(self,seatNumber, seatColumn, isReserved,seatPrice):
+        seat = Seat(seatNumber, seatColumn, isReserved,seatPrice)
+        self.seatsList.append(seat)
+        return seat
 
+    def create_hall(self, name, totalSeats,listOfSeats):
+        hall = Hall(name, totalSeats, listOfSeats)
+        #  Add the hall to the cinema
+        self.hallList.append(hall)
+        return hall
+    
+    def get_all_customers(self):
+        return list(self.customers.values())
+    
+    def get_all_movies(self) -> List[Movie]:
+        return self.moviesList
+     
+    def get_movie_schedule(self, movie: Movie) -> List[Screening]:
+        if movie in self.moviesList:
+            movie.getScreenings
+
+    def find_hall_by_name(self, name):
+        for hall in self.hallList:
+            if hall.name == name:
+                return hall  # Return the hall if the name matches
+        return None  # Return None if no hall with the specified name is found
+    
     def find_customer_by_name(self, customer_name: str) -> Optional[Customer]:
         """Finds a customer by their name and returns the Customer object if found, or None if not found."""
         # print(customer_name)
@@ -118,19 +123,34 @@ class Cinema:
                 return customer
         return None
     
-    def get_all_movies(self) -> List[Movie]:
-        return self.moviesList
-    
     def find_movie_by_title(self, selected_movie_title):
         for movie in self.moviesList:
             if movie.title == selected_movie_title:
                 return movie
         return None  # Return None if the movie is not found
     
+    def find_movie_by_screening_number(self, screening_number):
+        # Lookup the associated movie title using the screening number
+        return self.screening_to_movie.get(screening_number, None)
+    
+    def find_screening_by_screening_number(self, screening_number):
+        for screening in self.screeningsList:
+            if screening.screeningID == screening_number:
+                return screening
+        return None
+    
     def find_seat_by_id(self, seat_id):
         for seat in self.seatsList:
             if seat.seatID == seat_id:
                 return seat
+        return None
+    
+    def find_booking_by_id(self,booking_id):
+        # Iterate through the list of bookings to find the one with the specified booking ID
+        for booking in self.bookingList:
+            if booking.bookingNum == booking_id:
+                return booking
+        # If the booking with the given ID is not found, return None
         return None
     
     def searchMovieTitle(self, title: str) -> List[Movie]:
@@ -161,7 +181,6 @@ class Cinema:
                 matching_movies.append(movie)
         return matching_movies
 
-
     def view_movie(self, title):
         for movie in self.moviesList:
             if movie.title == title:
@@ -174,13 +193,7 @@ class Cinema:
         self.moviesList.append(movie)
         #print(movie)
         return movie
-
-    def get_all_movies(self):
-        return self.moviesList    
     
-    def find_movie_by_screening_number(self, screening_number):
-        # Lookup the associated movie title using the screening number
-        return self.screening_to_movie.get(screening_number, None)
     
     def add_screening(self, screeningDate: datetime, startTime: datetime, endTime: datetime, hall: Hall) -> Screening:
         # Create a new Screening and add it to the list of screenings
@@ -193,28 +206,6 @@ class Cinema:
         self.screening_to_movie[screening.screeningID] = movie.title
         movie.addScreening(screening)
 
-    # def add_movie_to_screening(self, screening: Screening, movie_title: str):
-    #     # Add the movie title to the screening in the dictionary
-    #     self.screening_to_movie[screening.screeningID] = movie_title
-
-    #     # Find the movie by title
-    #     movie = self.cinema.find_movie_by_title(movie_title)
-    #     if movie:
-    #         # Add the screening to the movie
-    #         movie.addScreening(screening)
-    #     else:
-    #         print(f"Movie not found for title: {movie_title}")
-
-    #     print(self.screening_to_movie)  # Debugging: Print the updated dictionary
-  
-
-    
-    def find_screening_by_screening_number(self, screening_number):
-        for screening in self.screeningsList:
-            if screening.screeningID == screening_number:
-                return screening
-        return None
-    
     def cancel_movie(self, movie: Movie) -> bool:
         """! Cancels a movie and all its screenings""" 
         # Cancel a movie and all its screenings
@@ -241,11 +232,7 @@ class Cinema:
             
             return True
         return False
-    
-    def get_movie_schedule(self, movie: Movie) -> List[Screening]:
-        if movie in self.moviesList:
-            movie.getScreenings
-
+   
     def make_booking(self,customer, aScreening: Screening, seats: List[Seat], orderTotal: float, paymentDetail: str) -> Booking:
         booking = Booking(customer, aScreening, seats, orderTotal, paymentDetail)
         aScreening.bookSeats(seats)
@@ -257,14 +244,6 @@ class Cinema:
         else:
             self.customer_bookings[customer].append(booking)  # Append to the existing list
         return booking
-    
-    def find_booking_by_id(self,booking_id):
-        # Iterate through the list of bookings to find the one with the specified booking ID
-        for booking in self.bookingList:
-            if booking.bookingNum == booking_id:
-                return booking
-        # If the booking with the given ID is not found, return None
-        return None
 
     def cancel_booking(self, booking: Booking) -> bool:
         """Cancels a booking and frees up the seats."""
@@ -318,6 +297,3 @@ class Cinema:
         notification_content = f"Booking {booking.bookingNum} has been canceled."
         notification = Notification(notificationID, notification_content)  # Create a new Notification object
         self.send_notification(customer, notification)  # Send the notification to the customer
-
-# cinema = Cinema()
-# print(cinema.moviesList)
