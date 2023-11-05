@@ -222,10 +222,11 @@ class Cinema:
             self.moviesList.remove(movie)
             for screening in movie.getScreenings():
                 movie.cancelScreening(screening)
-            # Remove the movie from the self.screening_to_movie dictionary
-            if screening.screeningID in self.screening_to_movie: # Might be wrong here 
-                del self.screening_to_movie[screening.screeningID]
-            return True
+            return True    
+            # # Remove the movie from the self.screening_to_movie dictionary
+            # if screening.screeningID in self.screening_to_movie: # Might be wrong here 
+            #     del self.screening_to_movie[screening.screeningID]
+            # return True
         return False
 
     def remove_screening(self, screening: Screening) -> bool:

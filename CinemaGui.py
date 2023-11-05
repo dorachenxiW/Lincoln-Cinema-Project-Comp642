@@ -1278,7 +1278,7 @@ class FifthPage(tk.Frame):
             # Implement the cancellation logic here, e.g., remove the movie from your data
             movie = self.cinema.find_movie_by_title(selected_movie_title)
             self.cinema.cancel_movie(movie)
-
+            
             if movie.getScreenings():
                 print(movie.getScreenings())
                 # Delete the lines in the screening.txt file for this movie
@@ -1304,7 +1304,8 @@ class FifthPage(tk.Frame):
                 messagebox.showinfo("Success", f"The movie: {selected_movie_title} and its screenigns have been canceled.")
             except Exception as e:
                 messagebox.showerror("Error deleting the movie:", str(e))
-
+            
+            
             # Update the listbox to reflect the changes
             #self.populate_screening_combobox()
             movie_listbox.delete(selected_movie_index)
@@ -1425,7 +1426,6 @@ class FifthPage(tk.Frame):
 
         # Retrieve the list of available screenings from your cinema
         available_screenings = self.cinema.screeningsList
-        print(available_screenings)
 
         # Create a Listbox to display the scheduled screenings
         screening_listbox = tk.Listbox(cancel_screening_window, width=60, height=10)
@@ -1492,10 +1492,10 @@ class FifthPage(tk.Frame):
                 line_parts = line.strip().split(',')
                 if len(line_parts) > 1:
                     line_without_first_part = ', '.join(line_parts[1:])
-                    print(line_without_first_part)
+                   
                 if selected_line_without_id != line_without_first_part:
                     updated_lines.append(line)
-                    print(updated_lines)
+                   
 
             # Write the updated content (excluding the canceled screening) back to the screening.txt file
             with open("screening.txt", "w") as file:
@@ -1513,28 +1513,6 @@ class FifthPage(tk.Frame):
         cancel_button = tk.Button(cancel_screening_window, text="Cancel Screening", command=confirm_cancellation)
         cancel_button.pack()
 
-
-    # def populate_screening_combobox(self):
-    #     # Get a list of all screenings from the Cinema class
-    #     screenings = self.cinema.screeningsList # Here might be wrong. It should be the screening to movie dictionary, rather than the screeninglist
-
-    #     # Clear previous values
-    #     self.screening_combobox.set("Select a screening")
-
-    #     # Populate the screening Combobox with screening details
-    #     screening_values = []
-    #     for screening in screenings:
-    #         screening_text = (
-    #             f"Screening {screening.screeningID}, "
-    #             f"{self.cinema.screening_to_movie[screening.screeningID]}, "
-    #             f"{screening.screeningDate.strftime('%d-%m-%Y')} {screening.startTime.strftime('%H:%M')}-{screening.endTime.strftime('%H:%M')}, "
-    #             f"{screening.hall.name}"
-    #         )
-    #         screening_values.append(screening_text)
-
-    #     # Set the values of the Combobox
-    #     self.screening_combobox["values"] = tuple(screening_values)
-    # Get the screening to movie dictionary from the Cinema class
     def populate_screening_combobox(self):
         # Get the screening to movie dictionary from the Cinema class
         screening_to_movie = self.cinema.screening_to_movie
