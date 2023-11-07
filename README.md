@@ -1,5 +1,7 @@
 # Lincoln-Cinema-Project-Comp642
 The last assignment of COMP642
+OOP Approach employed 
+Gui - TKinter
 
 Login Details:
 CUSTOMER
